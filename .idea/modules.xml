@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/CursorHelper.iml" filepath="$PROJECT_DIR$/CursorHelper.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cursorhandler/cursorhandler.iml" filepath="$PROJECT_DIR$/cursorhandler/cursorhandler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/db_annotation_compiler/db_annotation_compiler.iml" filepath="$PROJECT_DIR$/db_annotation_compiler/db_annotation_compiler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/db_annotation_jar/db_annotation_jar.iml" filepath="$PROJECT_DIR$/db_annotation_jar/db_annotation_jar.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sample/sample.iml" filepath="$PROJECT_DIR$/sample/sample.iml" />
+    </modules>
+  </component>
+</project>
