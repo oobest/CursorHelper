@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+
+
+>>>>>>> first commit
 # Built application files
 *.apk
 *.ap_
@@ -62,4 +80,8 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
+<<<<<<< HEAD
 fastlane/readme.md
+=======
+fastlane/readme.md
+>>>>>>> first commit

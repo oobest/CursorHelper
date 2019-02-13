@@ -1,0 +1,1 @@
+include ':sample', ':cursorhandler', ':db_annotation_jar', ':db_annotation_compiler'
