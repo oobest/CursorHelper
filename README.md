@@ -35,7 +35,7 @@ public class Customer {
     @Cols("phone")
     protected String phone;
 
-
+    //setter getter ...
 
 ```
 
