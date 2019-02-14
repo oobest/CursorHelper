@@ -1,4 +1,5 @@
 # CursorHelper
+### 主要功能
 * Cursor解析成对象
 * 通过输入SQL和相关参数,查找，删除，更新。
 ###### 配置项目根目录 build.gradle
