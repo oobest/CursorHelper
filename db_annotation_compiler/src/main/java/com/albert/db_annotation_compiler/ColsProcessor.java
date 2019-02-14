@@ -1,23 +1,47 @@
 package com.albert.db_annotation_compiler;
 
+import com.albert.lib_db_annotation.AptCursorWrapper;
 import com.albert.lib_db_annotation.Cols;
 import com.albert.lib_db_annotation.Constants;
 import com.albert.lib_db_annotation.IParseCursor;
 import com.google.auto.service.AutoService;
-import com.squareup.javapoet.*;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeSpec;
 
-import javax.annotation.processing.*;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.Processor;
+import javax.annotation.processing.RoundEnvironment;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
-
-import java.io.IOException;
-import java.util.*;
 
 @AutoService(Processor.class)
 public class ColsProcessor extends AbstractProcessor {
@@ -53,7 +77,7 @@ public class ColsProcessor extends AbstractProcessor {
             return true;
         }
         info(">>> Found field, start... <<<");
-        Set<? extends Element> elements = roundEnvironment.getElementsAnnotatedWith(Cols.class);
+        Set<? extends Element> elements = roundEnvironment.getElementsAnnotatedWith(AptCursorWrapper.class);
         if (elements == null || elements.isEmpty()) {
             info(">>> elements is null...");
             return true;
@@ -61,6 +85,7 @@ public class ColsProcessor extends AbstractProcessor {
         try {
             Map<TypeElement, List<FieldBinding>> targetMap = getTargetMap(elements);
             createJavaFile(targetMap.entrySet());
+            info(">>>>>>>>>>>>>>>>>>>end");
         } catch (ColsException e) {
             error(e.getElement(), e.getMessage());
             return true;
@@ -75,36 +100,57 @@ public class ColsProcessor extends AbstractProcessor {
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> annotations = new LinkedHashSet<>();
-        annotations.add(Cols.class.getCanonicalName());
+        annotations.add(AptCursorWrapper.class.getCanonicalName());
         return annotations;
     }
 
     private Map<TypeElement, List<FieldBinding>> getTargetMap(Set<? extends Element> elements) throws ColsException {
         Map<TypeElement, List<FieldBinding>> targetMap = new HashMap<>();
         for (Element element : elements) {
-            if (element.getKind() != ElementKind.FIELD) {
+            if (element.getKind() != ElementKind.CLASS) {
                 throw new ColsException(element, String.format("Only field can be annotated with @%s", Cols.class.getSimpleName()));
             }
-            String fieldName = element.getSimpleName().toString();
-            TypeMirror fieldType = element.asType();
+            TypeElement typeElement = (TypeElement) element; //获取文件
 
-            String typeString = fieldType.toString();
-            if (!TYPES.contains(fieldType.toString())) {
-                throw new ColsException(element, String.format("Field's type Not support for %s, can use int, float,double,String", typeString));
-            }
-            String colsName = element.getAnnotation(Cols.class).value();
-
-            TypeElement typeElement = (TypeElement) element.getEnclosingElement();
-            List<FieldBinding> list = targetMap.get(typeElement);
-            if (list == null) {
-                list = new ArrayList<>();
+            List<FieldBinding> list = getFieldBinding(typeElement);
+            if (list != null && !list.isEmpty()) {
                 targetMap.put(typeElement, list);
             }
-            list.add(new FieldBinding(fieldName, fieldType, colsName));
         }
+
         return targetMap;
     }
 
+    private List<FieldBinding> getFieldBinding(TypeElement typeElement) throws ColsException {
+        TypeMirror parentMirror = typeElement.getSuperclass();
+        List<FieldBinding> result = null;
+        if (parentMirror != null) {
+            TypeElement parentElement = (TypeElement) mTypeUtils.asElement(typeElement.getSuperclass());
+            String fullClassName = parentElement.getQualifiedName().toString();
+            if (fullClassName.equals("java.lang.Object")) {
+                result = new ArrayList<>();
+            } else {
+                result = getFieldBinding(parentElement);
+            }
+        }
+
+        List<? extends Element> elements = typeElement.getEnclosedElements();
+        for (Element e : elements) {
+            if (e.getKind() == ElementKind.FIELD) {
+                Cols annotation = e.getAnnotation(Cols.class);
+                if (annotation != null) {
+                    String fieldName = e.getSimpleName().toString();
+                    TypeMirror fieldType = e.asType();
+                    String typeString = fieldType.toString();
+                    if (!TYPES.contains(typeString)) {
+                        throw new ColsException(e, String.format("Field's type Not support for %s, can use int, float,double,String", typeString));
+                    }
+                    result.add(new FieldBinding(fieldName, fieldType, annotation.value()));
+                }
+            }
+        }
+        return result;
+    }
 
     private void createJavaFile(Set<Map.Entry<TypeElement, List<FieldBinding>>> entries) throws IOException {
         final ParameterSpec cursorParameterSpec = ParameterSpec.builder(ClassName.bestGuess("android.database.Cursor"), "cursor")
@@ -126,7 +172,6 @@ public class ColsProcessor extends AbstractProcessor {
             String className = fullClassName.substring(packageName.length() + 1);
             String newClassName = className + Constants.SUFFIX;
             ClassName ItemClassName = ClassName.bestGuess(fullClassName);
-
 
             //
             MethodSpec.Builder constructorMethodBuilder = MethodSpec.constructorBuilder()

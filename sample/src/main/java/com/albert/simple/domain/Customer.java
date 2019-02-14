@@ -1,7 +1,9 @@
 package com.albert.simple.domain;
 
+import com.albert.lib_db_annotation.AptCursorWrapper;
 import com.albert.lib_db_annotation.Cols;
 
+@AptCursorWrapper
 public class Customer {
 
     @Cols("id")
