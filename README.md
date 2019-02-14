@@ -20,6 +20,7 @@ allprojects {
 
 ###### 注解bean
 ```
+@AptCursorWrapper
 public class Customer {
 
     @Cols("id")
