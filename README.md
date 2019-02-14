@@ -14,8 +14,8 @@ allprojects {
 
 ###### 配置app build.gradle
 ```
-   implementation 'com.github.oobest.CursorHelper:cursorhandler:v1.2'
-    annotationProcessor 'com.github.oobest.CursorHelper:db_annotation_compiler:v1.2'
+   implementation 'com.github.oobest.CursorHelper:cursorhandler:v1.6'
+    annotationProcessor 'com.github.oobest.CursorHelper:db_annotation_compiler:v1.6'
 ```
 
 ###### 注解bean
