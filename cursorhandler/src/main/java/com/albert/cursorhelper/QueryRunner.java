@@ -1,7 +1,6 @@
 package com.albert.cursorhelper;
 
 import android.database.Cursor;
-import android.support.annotation.NonNull;
 
 public class QueryRunner {
 
@@ -11,7 +10,7 @@ public class QueryRunner {
         this.mDatabaseHelper = databaseHelper;
     }
 
-    public <T> T query(@NonNull String sql, CursorHandler<T> cursorHandler, String... params) throws Exception {
+    public <T> T query(String sql, CursorHandler<T> cursorHandler, String... params) throws Exception {
         Cursor cursor = mDatabaseHelper.rawQuery(sql, params);
         return cursorHandler.handle(cursor);
     }
