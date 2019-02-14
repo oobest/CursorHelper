@@ -1,15 +1,24 @@
 # CursorHelper
 通过输入SQL和相关参数,查找，删除，更新。主要是查找时，返回对象
+###### 配置项目根目录 build.gradle
+```
+allprojects {
+    repositories {
+        jcenter()
+        maven { url "https://jitpack.io" }
+    }
+}
+```
 
-** 配置app build.gradle **
+###### 配置app build.gradle
 ```
    implementation 'com.github.oobest.CursorHelper:cursorhandler:v1.2'
     annotationProcessor 'com.github.oobest.CursorHelper:db_annotation_compiler:v1.2'
 ```
 
-** 注解bean **
+###### 注解bean
 ```
-public class User {
+public class Customer {
 
     @Cols("id")
     protected int id;
@@ -17,20 +26,37 @@ public class User {
     @Cols("name")
     protected String name;
 
-    @Cols("password")
-    protected String password;
+    @Cols("address")
+    protected String address;
 
-    // get、set方法
-}
+    @Cols("phone")
+    protected String phone;
+
 
 
 ```
 
 
-** 解析Cursor **
+###### 解析单个对象Cursor
 ```
-// select id, name, password from tb_user
+//"SELECT id, name, address, phone From customers WHERE id = ?"
 // 注意数据库返回得Cursor中，列字段要与注释中的字符串一致
-User user = new BeanHandler<>(User.class).handle(cursor);
+Customer user = new BeanHandler<>(Customer.class).handle(cursor);
+
+```
+
+###### 解析List Cursor
+```
+//"SELECT id, name, address, phone From customers"
+// 注意数据库返回得Cursor中，列字段要与注释中的字符串一致
+Customer user = new BeanListHandler<>(Customer.class).handle(cursor);
+
+```
+
+###### 解析基础数据
+```
+//"SELECT count(name) From customers WHERE name = ?"
+// 只支持Integer,Long,Double,Float,String
+Customer user = new new ScalarHandler<>(Long.class).handle(cursor);
 
 ```
