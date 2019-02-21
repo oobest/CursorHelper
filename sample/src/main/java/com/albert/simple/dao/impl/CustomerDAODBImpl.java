@@ -4,6 +4,7 @@ package com.albert.simple.dao.impl;
 import android.content.Context;
 
 import com.albert.cursorhelper.BaseDAO;
+import com.albert.cursorhelper.DAO;
 import com.albert.simple.dao.CriteriaCustomer;
 import com.albert.simple.dao.CustomerDAO;
 import com.albert.simple.db.MyDatabaseHelper;
@@ -11,7 +12,7 @@ import com.albert.simple.domain.Customer;
 
 import java.util.List;
 
-public class CustomerDAODBImpl extends BaseDAO<Customer> implements CustomerDAO {
+public class CustomerDAODBImpl extends DAO implements CustomerDAO {
 
     public CustomerDAODBImpl(Context context) {
         super(MyDatabaseHelper.getInstance(context));
@@ -20,7 +21,7 @@ public class CustomerDAODBImpl extends BaseDAO<Customer> implements CustomerDAO 
     @Override
     public List<Customer> getAll() {
         String sql = "SELECT id, name, address, phone From customers";
-        return getForList(sql);
+        return getForBeanList(Customer.class, sql);
     }
 
     @Override
@@ -35,7 +36,7 @@ public class CustomerDAODBImpl extends BaseDAO<Customer> implements CustomerDAO 
     @Override
     public Customer get(Integer id) {
         String sql = "SELECT id, name, address, phone From customers WHERE id = ?";
-        return get(sql, String.valueOf(id));
+        return getBean(Customer.class, sql, String.valueOf(id));
     }
 
     @Override
@@ -62,7 +63,7 @@ public class CustomerDAODBImpl extends BaseDAO<Customer> implements CustomerDAO 
     public List<Customer> getForListWithCriteriaCustomer(CriteriaCustomer cc) {
         String sql = "SELECT id, name, address, phone FROM customers WHERE "
                 + "name LIKE ? and address LIKE ? and phone LIKE ?";
-        return getForList(sql, cc.getName(), cc.getAddress(), cc.getPhone());
+        return getForBeanList(Customer.class, sql, cc.getName(), cc.getAddress(), cc.getPhone());
     }
 
 
